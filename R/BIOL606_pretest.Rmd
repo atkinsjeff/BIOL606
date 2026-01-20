@@ -1,0 +1,230 @@
+---
+title: "BIOL 606: Statistical Knowledge Assessment"
+author: "Dr. Atkins"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+## Instructions
+
+This assessment helps me understand your statistical background. Please answer honestly—this is **not graded** and will help me tailor the course to your needs. Answer all questions to the best of your ability.
+
+**Name:** ______________________________
+
+**Email:** ______________________________
+
+
+
+
+
+### Question 1
+
+To the best of your ability, define the following terms:
+
+&nbsp;&nbsp;a) Standard Error:
+ 
+&nbsp;&nbsp;b) Variance:
+ 
+&nbsp;&nbsp;c) Variability:
+
+&nbsp;&nbsp;d) Covariance:
+  
+&nbsp;&nbsp;e) Central Tendency
+
+\hfill\break
+
+### Question 2
+
+Provide an example of the following type of variables:
+
+&nbsp;&nbsp;a) Discrete:
+  
+&nbsp;&nbsp;b) Continuous:
+  
+&nbsp;&nbsp;c) Binary:
+  
+&nbsp;&nbsp;d) Nominal:
+  
+&nbsp;&nbsp;e) Ordinal:
+
+\hfill\break
+
+
+### Question 3
+
+How are parametric and non-parametric statistics different? 
+
+
+\newpage
+
+### Question 4
+
+What does ANOVA stand for and how is it different than a T-test?
+
+\hfill\break
+
+### Question 5
+
+Define the following terms:
+
+&nbsp;&nbsp;a) Ordination:
+  
+&nbsp;&nbsp;b) Cluster Analysis:
+  
+&nbsp;&nbsp;c) Psuedoreplication:
+  
+&nbsp;&nbsp;d) Machine Learning:
+  
+&nbsp;&nbsp;e) Heteroskedasticity: 
+
+\hfill\break
+
+### Question 6
+
+Interpret the plot below in as much detail as possible:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align = "center", fig.width = 4, fig.height = 3}
+library(ggplot2)
+library(dplyr)
+data(InsectSprays)
+
+# Calculate summary data
+summary_data <- InsectSprays %>%
+  group_by(spray) %>%
+  summarize(
+    mean_count = mean(count),
+    se = sd(count) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Run ANOVA and Tukey
+anova_model <- aov(count ~ spray, data = InsectSprays)
+tukey_results <- TukeyHSD(anova_model)
+
+# Function to determine significance vs control (spray A)
+get_sig_vs_control <- function(spray_name, tukey_results) {
+  if (spray_name == "A") return("")  # Control
+  
+  comparison_name <- paste(spray_name, "A", sep = "-")
+  p_value <- tukey_results$spray[comparison_name, "p adj"]
+  
+  if (p_value < 0.001) return("***")
+  if (p_value < 0.01) return("**")
+  if (p_value < 0.05) return("*")
+  return("ns")
+}
+
+# Add significance symbols
+summary_data$significance <- sapply(summary_data$spray, 
+                                    get_sig_vs_control, 
+                                    tukey_results = tukey_results)
+
+# Create plot (remove x11())
+ggplot(summary_data, aes(x = spray, y = mean_count, fill = spray)) +
+  geom_bar(stat = "identity", color = "black") +
+  geom_errorbar(aes(ymin = mean_count - se, 
+                    ymax = mean_count + se),
+                width = 0.3) +
+  geom_text(aes(label = significance, y = mean_count + se + 1.5), 
+            size = 6, fontface = "bold") +
+  labs(x = "Insecticide Spray Type",
+       y = "Mean Insect Count") +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+\newpage
+
+### Question 7
+
+Interpret the plot below in as much detail as possible:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align = "center", fig.width = 6, fig.height = 6}
+data(iris)
+library(ggplot2)
+library(ggbiplot)
+iris.pca <- prcomp (~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width,
+                    data=iris,
+                    scale. = TRUE)
+
+ggbiplot(iris.pca, obs.scale = 1, var.scale = 1,
+           groups = iris$Species, point.size=2,
+           varname.size = 5, 
+           varname.color = "black",
+           varname.adjust = 1.2,
+           ellipse = TRUE, 
+           circle = TRUE) +
+labs(fill = "Species", color = "Species") +
+theme_minimal(base_size = 14) +
+theme(legend.direction = 'horizontal', legend.position = 'top')
+
+```
+
+
+\newpage
+
+### Question 8
+
+Interpret the plot below in as much detail as possible:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align = "center", fig.width = 6, fig.height = 6}
+library(ggplot2)
+library(ggdendro)
+
+scaled_data <- scale(USArrests)
+hc_ward <- hclust(dist(scaled_data), method="ward.D2")
+ggdendrogram(hc_ward, rotate = TRUE, size = 2)
+```
+
+
+<br>
+<br>
+<br>
+<br>
+
+\newpage
+
+### Question 9
+
+What does statistical significance mean?
+
+\hfill\break
+
+
+### Question 10
+
+Why did you take this class and what topics related to quantitative ecology are of most interest to you?
+
+\hfill\break
+
+
+### Question 11
+
+List all of courses you have completed as either an undergraduate or graduate in the following areas (and please use descriptive titles rather than course numbers):
+
+Ecology:
+\hfill\break
+\hfill\break
+\hfill\break
+Statistics:
+
+\hfill\break
+
+### Question 12
+
+What is your coding experience? (any language)
+
+<br>
+<br>
+<br>
+<br>
+
+
+
